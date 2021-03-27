@@ -1,0 +1,3 @@
+[submodule "HTTP_Request_Randomizer"]
+	path = HTTP_Request_Randomizer
+	url = git@github.com:ralatsdc/HTTP_Request_Randomizer.git
