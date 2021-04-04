@@ -6,6 +6,15 @@ import dateparser, copy
 from bs4 import BeautifulSoup as Soup, ResultSet
 from dateutil.parser import parse
 
+import logging
+import os
+import sys
+
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(base_dir, "HTTP_Request_Randomizer"))
+
+from http_request_randomizer.requests.proxy.requestProxy import RequestProxy
+
 ### METHODS
 
 def lexical_date_parser(date_to_check):
@@ -40,6 +49,7 @@ class GoogleNews:
         self.__totalcount = 0
         self.user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:64.0) Gecko/20100101 Firefox/64.0'
         self.headers = {'User-Agent': self.user_agent}
+        self.req_proxy = RequestProxy(log_level=logging.ERROR)
         self.__lang = lang
         self.__period = period
         self.__start = start
@@ -89,6 +99,11 @@ class GoogleNews:
     def build_response(self):
         self.req = urllib.request.Request(self.url, headers=self.headers)
         self.response = urllib.request.urlopen(self.req)
+
+        req = self.req_proxy.generate_proxied_request(self.url)
+        response = req.text
+
+        import pdb; pdb.set_trace()
         self.page = self.response.read()
         self.content = Soup(self.page, "html.parser")
         stats = self.content.find_all("div", id="result-stats")
