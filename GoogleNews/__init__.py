@@ -6,6 +6,10 @@ import dateparser, copy
 from bs4 import BeautifulSoup as Soup, ResultSet
 from dateutil.parser import parse
 
+# import requests
+
+from ProxyRequests import ProxyRequests
+
 ### METHODS
 
 def lexical_date_parser(date_to_check):
@@ -45,6 +49,7 @@ class GoogleNews:
         self.__start = start
         self.__end = end
         self.__encode = encode
+        self.proxy_requests = ProxyRequests()
 
     def set_lang(self, lang):
         self.__lang = lang
@@ -87,10 +92,14 @@ class GoogleNews:
         self.get_page()
 
     def build_response(self):
-        self.req = urllib.request.Request(self.url, headers=self.headers)
-        self.response = urllib.request.urlopen(self.req)
-        self.page = self.response.read()
+        # self._request = urllib.request.Request(self.url, headers=self.headers)
+        # self._response = urllib.request.urlopen(self._request)
+        self.response = self.proxy_requests.get(self.url)  # Using ProxyRequests
+        # self._page = self._response.read()
+        self.page = self.response.content  # Using requests
+        # self._content = Soup(self._page, "html.parser")
         self.content = Soup(self.page, "html.parser")
+        # _stats = self._content.find_all("div", id="result-stats")
         stats = self.content.find_all("div", id="result-stats")
         if stats and isinstance(stats, ResultSet):
             stats = re.search(r'\d+', stats[0].text)
@@ -220,10 +229,14 @@ class GoogleNews:
         else:
             self.url = 'https://news.google.com/?hl={}'.format(self.__lang)
         try:
-            self.req = urllib.request.Request(self.url, headers=self.headers)
-            self.response = urllib.request.urlopen(self.req)
-            self.page = self.response.read()
+            # self._request = urllib.request.Request(self.url, headers=self.headers)
+            # self._response = urllib.request.urlopen(self._request)
+            self.response = self.proxy_requests.get(self.url)  # Using ProxyRequests
+            # self._page = self.response.read()
+            self.page = self.response.content  # Using requests
+            # self._content = Soup(self._page, "html.parser")
             self.content = Soup(self.page, "html.parser")
+            # _articles = self._content.select('div[class="NiLAwe y6IFtc R7GTQ keNKEd j7vNaf nID9nc"]')
             articles = self.content.select('div[class="NiLAwe y6IFtc R7GTQ keNKEd j7vNaf nID9nc"]')
             for article in articles:
                 try:
